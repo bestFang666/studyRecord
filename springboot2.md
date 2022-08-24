@@ -74,9 +74,9 @@
       
       一个封装了该三个
   
-  * @RestController： 合并 @Controller 和 @ResponseBody
+  * Controller： 合并 @Controller 和 @ResponseBody
     
-    * @ Controller： web 层
+    * @Controller： web 层
     
     * @ResponseBody： 将数据写回给浏览器
 
@@ -272,6 +272,8 @@
 
 * SpringBoot 使用 @Configuration 和 @Bean 注解，使用 @Bean 标注来向容器中注册组件，是<u>**单实例**</u>
   
+  * <u>**没有 @Configuration 注解，那么 @Bean 就不会生效**</u>
+  
   * <u>配置类（带 @Configuration 注解）本身就是组件</u>
   
   * @SpringBootApplication： 标识主配置类
@@ -295,8 +297,10 @@
 * @Component： 类上标注表示该类是一个组件
 
 * @Controller： 类上标注表示该类是一个 web 控制器组件
+  
+  * RestController 和 Controller ： http://www.wjhsh.net/ggjun-p-11311876.html
 
-* @Service： 类上标注表示该类是一个业务逻辑组件
+* @Service： 类上（标注在 service 实现类上）标注表示该类是一个业务逻辑组件
 
 * @Repository： 类上标注表示该类是一个数据库层的组件
 
@@ -367,6 +371,10 @@
 * 查看自动配置了哪些，<u>**两种方法**</u>
   
   * 自己分析，引入了某个场景，对应的自动配置就生效了
+    
+    * 举例：
+      
+      ![](C:\Users\DELL\AppData\Roaming\marktext\images\2022-08-22-21-21-04-image.png)
   
   * 开启自动配置报告，在配置文件（.properties）添加 debug=true
 
@@ -379,6 +387,12 @@
   * 自定义加入或者替换组件
   
   * 自定义器  XXXXXCustomizer
+
+### 总结
+
+- 使用SpringBoot过程
+
+<img src="file:///C:/Users/DELL/AppData/Roaming/marktext/images/2022-08-22-20-25-23-image.png" title="" alt="" width="400">
 
 ## 4. 开发小技巧
 
@@ -563,7 +577,7 @@
   
   默认是 /**
   
-  * 请求顺序
+  * <u>**请求顺序**</u>
   1. 找 Controller
   
   2. 找静态资源
@@ -607,6 +621,8 @@ spring:
 #### 2.2.1 Rest 风格
 
 * @RequestMapping(value = "/user",method = RequestMethod.GET/DELETE/PUT/POST)
+  
+  <u>**value = {} 可以是个数组，也可以是单个值** </u>
   
   * <u>**GET**</u>： 获取/查询 ------ /getUser
   
@@ -695,11 +711,17 @@ spring:
     
     ![](C:\Users\DELL\AppData\Roaming\marktext\images\2022-08-19-12-52-02-image.png)
 
-* **@RequestBody Object object** 获取请求体[post]
+* **@RequestBody Object object** 获取请求体 **[post]**
   
   * 前端对应表单提交到后端
   
   * 使用 @PostMapping
+  
+  * 如果<u>**前端表单中的 name 字段名和后端 pojo 实体类中的属性相同**</u>，后端可以直接<u>**以对象形式或者以对象中的属性直接接收**</u>
+    
+    * 以下面例子为例，定义了一个 Person 对象，其中含有属性 username&password， 那么 post 请求中的参数可以定义为 Person person（或者 String username, String password），**<u>不用加注解</u>**，因为 <u>**SpringMVC 表单自动封装到Controller对象**</u>
+    * <u>**注意：**</u>如果使用 @RequestBody Person person 来接收，那么前端发请求时候需要修改content-type 为 json 格式，因为 @RequestBody对应请求体，以 json 形式封装。
+    * **<u>也可以使用 @RequestParam("表单中的 name 属性")  Object object</u>**
   
   ```html
   <!--测试post请求, action 绑定后端请求链接-->
@@ -775,8 +797,408 @@ spring:
     
     * 当把 cookie 禁用了，无法得到 sessionid， 从而无法得到 session， 最后无法得到里面的数据（比如：无法得到网页中的数据）
 
+* **@RequestParam和@RequestBody区别**
+  
+  1. @RequestParam 接收的参数是来自 requestHeader 中，即**请求头**
+  
+  2. @RequestBody 接收的参数是来自 requestBody 中，即**请求体**
+  
+  3. @RequestParam用来处理 `Content-Type` 为 `application/x-www-form-urlencoded` 编码的内容
+  
+  4. 一般用于处理非 `Content-Type: application/x-www-form-urlencoded`编码格式的数据，比如：`application/json`、`application/xml`等类型的数据。
+  
+  5. GET请求中，因为没有 HttpEntity，所以 @RequestBody 并不适用。
+     
+     POST请求中，通过 HttpEntity 传递的参数，**<u>必须要在请求头中声明数据的类型Content-Type</u>**
+  
+  6. 当前端请求的 Content-Type 是 Json 时，可以用 @RequestBody 这个注解来解决； @RequestParam 用来处理 Content-Type: 为 application/x-www-form-urlencoded 编码的内容，提交方式 GET、POST。
+
 ### 2.3 视图接信息与模板引擎
 
 * SpringBoot 不支持 JSP
 
 * src/main/resources/templates 下面放页面
+
+* 视图解析
+  
+  ```md
+  # forward 与 redirect 的区别，参考链接：
+  https://blog.csdn.net/weixin_37766296/article/details/80375106
+  # 防止发 post 请求时候，表单重复提交
+  使用 重定向 redirect, eg: redirect:/aaa
+  ```
+
+* 模板引擎： **<u>Thymeleaf </u>**(供后台服务开发使用，不支持<u>**前后端分离**</u>)
+  
+  ```md
+  # 简介及基础使用参见如下链接：
+  # （第一季 -> 05 -> 2 和 3）
+  https://www.yuque.com/atguigu/springboot/vgzmgh#lzseb
+  # ThymeLeaf 本身的网页默认放在 templates 文件夹下面，访问时候不用加.html后缀
+  https://blog.csdn.net/wenmou_/article/details/124414888
+  # 使用参加官网
+  https://www.thymeleaf.org/doc/tutorials/3.0/usingthymeleaf.html
+  ```
+
+### 2.4 后台管理系统一些常识
+
+- 发送一个请求，对象保存在 session 中，即给方法增加一个参数 HTTPSession session， 把对象保存在当中（使用 setAttribute() 方法）
+  
+  - 使用场景举例：登录成功后，把用户信息保存在 session 中，**<u>前端使用session.object 取得</u>**
+
+- 发送一个请求，数据保存在 model 中，即给方法增加一个参数 Model model，把相关数据保存在当中（使用 addAttribute() 方法）
+  
+  - 使用场景举例：登录成功后，把请求的状态码和 message 提示保存在当中，**<u>前端可以直接取得</u>**
+
+- Session 和 model 中的数据前后端都可以使用，随便用，二者没有强调特殊场景
+* 写页面时候，记得<u>**抽取公共页面**</u>，方便调用
+
+### 2.5 拦截器
+
+* 接口名： HandleInterceptor
+  
+  ![](C:\Users\DELL\AppData\Roaming\marktext\images\2022-08-22-11-43-15-image.png)
+
+* 自定义拦截器接口，首先需要实现原生接口，重写 pre（目标方法执行前）、post（目标方法执行后且页面渲染前）、after （页面渲染后）三个方法（**返回值为 boolean 类型，true 表示放行，false 表示拦截**）
+
+* **拦截器使用步骤**
+  
+  * 定义好拦截器实现 HandlerInterceptor 接口
+  
+  * 拦截器注册带容器中（<u>**定义一个配置类**</u>实现 webMVCConfigurer 并标注 @Configuration 注解，调用 addInterceptor 方法）
+  
+  * 指定拦截规则
+    
+    举例：
+    
+    ![](C:\Users\DELL\AppData\Roaming\marktext\images\2022-08-22-12-03-08-image.png)
+
+### 2.6 单文件与多文件上传
+
+* 使用注解 @RequestPart("表单中的name") MutipartFile object 来从前端获取到后端
+
+* MutipartFile 该类型自动封装前端传过来的文件
+
+* 前端代码
+  
+  ```html
+  <form method="post" action="/upload" enctype="multipart/form-data">
+  <!-- 多文件上传，添加属性 multiple -->
+      <input type="file" name="filename"></br>
+      <input type="submit" value="提交">
+  </form>
+  ```
+
+* 注意修改单个/整体文件的最大 size， 在 application.properties/.yml 中配置
+  
+  ```yaml
+  # 最大单个/整体文件大小
+    servlet:
+      multipart:
+        max-file-size: 10MB
+        max-request-size: 100MB
+  ```
+
+* **文件上传自动配置类-MultipartAutoConfiguration-MultipartProperties**
+
+### 2.7 异常处理
+
+* 官方文档链接： https://docs.spring.io/spring-boot/docs/current/reference/html/web.html#web.servlet.spring-mvc.error-handling
+  
+  ![](C:\Users\DELL\AppData\Roaming\marktext\images\2022-08-22-15-42-58-image.png)
+
+* 使用方法：
+  
+  * 在 templates 或者存放静态资源的文件夹中创建 error 文件夹，同时放入自定义的 html 文件（自己可以直接读取一些字段值，比如：message、trace等），出异常会自动跳转，不用写 Controller 请求跳转
+    
+    ![](C:\Users\DELL\AppData\Roaming\marktext\images\2022-08-22-15-49-15-image.png)
+
+### 2.8 Web 原生组件注入（Servlet、Fliter、Listener）
+
+* 官方文档：https://docs.spring.io/spring-boot/docs/current/reference/html/web.html#web.servlet.embedded-container
+  
+  ![](C:\Users\DELL\AppData\Roaming\marktext\images\2022-08-22-15-57-17-image.png)
+
+* 使用方法：
+  
+  * 使用原生的 Servlet API 
+    
+    ![](C:\Users\DELL\AppData\Roaming\marktext\images\2022-08-22-16-06-59-image.png)
+  
+  **<u>注意</u>**：@WebServlet 效果：直接响应，**没有经过Spring的拦截器**
+  
+  * 使用 RegistrationBean
+  
+  ![](C:\Users\DELL\AppData\Roaming\marktext\images\2022-08-22-16-47-33-image.png)
+  
+  **<u>注意： @Configuration(proxyBeanMethods = true) 保证单实例</u>**
+
+### 2.9 定制化组件
+
+* 常见方式
+  
+  * 修改配置文件
+  
+  * @configuration 与 @Bean 结合
+  
+  * 绑定配置文件
+  
+  * **web 应用编写一个配置类实现 WebMvcConfigurer 来定制化 web 功能（例如：见2.5拦截器）+ @Bean 来向容器中注入组件**
+    
+    * 参见官方链接： https://docs.spring.io/spring-boot/docs/current/reference/html/web.html#web.servlet.spring-mvc.auto-configuration
+      
+      ![](C:\Users\DELL\AppData\Roaming\marktext\images\2022-08-22-17-04-18-image.png)
+      
+      注意：@EnableMvc 表示<u>**全面接管**</u> SpringMVC， 所有东西都要<u>**重写**</u>，要<u>**慎用**</u>
+      
+      ![](C:\Users\DELL\AppData\Roaming\marktext\images\2022-08-22-17-21-25-image.png)
+  
+  * XXXCustomizer
+    
+    * 官方文档链接： https://docs.spring.io/spring-boot/docs/current/reference/html/web.html#web.servlet.embedded-container.customizing.programmatic
+      
+      ![](C:\Users\DELL\AppData\Roaming\marktext\images\2022-08-22-16-57-29-image.png)
+
+## 3. 数据访问
+
+### 3.1 SQL
+
+* <u>**版本说明**</u>
+  
+  ```md
+  MySQL 版本：5.7.31
+  ```
+
+* 引入 JDBC 场景，自动导入了相关的自动配置类
+  
+  - 底层默认数据源
+  
+  - spring - jdbc
+  
+  - spring - tx 事务
+  
+  ```xml
+  # JDBC 场景
+  <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-data-jdbc</artifactId>
+  </dependency>   
+  ```
+  
+  - <u><strong>缺少了数据驱动</strong></u>
+    
+    - 不默认导入，版本需要自定义选择（<u>**可以不修改，向下兼容**</u>）
+  
+  ```xml
+  <!--  引入数据库驱动,有两种修改方式，默认版本是 8.0.29，需要与当前所匹配，-->
+   <!-- 方式一 不指定版本，在 properties 标签中指定版本（maven属性就近依赖）--> 
+   <properties>
+          <mysql.version>5.1.49</mysql.version>
+   </properties>
+  <!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
+          <dependency>
+              <groupId>mysql</groupId>
+              <artifactId>mysql-connector-java</artifactId>
+              <!-- 方式二直接指定版本如下（maven就近依赖） -->
+              <version>5.1.47</version>
+          </dependency>
+  ```
+
+* 修改相关配置项（数据源）来改变绑定的 javabean 的值
+  
+  * 驱动类名改为： <u>com.mysql.cj.jdbc.Driver</u>， 原 com.mysql.jdbc.Driver <u>**已过时**</u>
+  
+  * **在`mysql-connector-java 5`以后的版本中(不包括5) 使用的都是`com.mysql.cj.jdbc.Driver`**
+  
+  ```yml
+  spring:
+    # 配置数据源
+    datasource:
+      # 默认类型
+      type: com.zaxxer.hikari.HikariDataSource
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://localhost:3306/ry?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
+      username: root
+      password: 123456789
+  ```
+
+#### 3.1.1 使用 Druid 数据源
+
+* 官方参考网址： https://github.com/alibaba/druid
+
+* 引入场景
+  
+  ```xml
+  <!-- 第三方 starter 命名：*-spring-boot-starter-->
+  <dependency>
+        <groupId>com.alibaba</groupId>
+        <artifactId>druid-spring-boot-starter</artifactId>
+        <version>1.1.17</version>
+  </dependency>
+  ```
+
+* 修改相关配置项
+  
+  ```yml
+  spring:
+    # 配置数据源
+    datasource:
+      url: jdbc:mysql://localhost:3306/ry?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
+      username: root
+      password: 123456789
+      driver-class-name: com.mysql.cj.jdbc.Driver
+  
+      druid:
+        aop-patterns: com.atguigu.admin.*  #监控SpringBean
+        filters: stat,wall     # 底层开启功能，stat（sql监控），wall（防火墙）
+  
+        stat-view-servlet:   # 配置监控页功能
+          enabled: true
+          login-username: admin
+          login-password: 123456789
+          resetEnable: false
+  
+        web-stat-filter:  # 监控web
+          enabled: true
+          urlPattern: /*
+          exclusions: '*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*'
+  ```
+
+#### 3.1.2 Mybatis 整合
+
+* Mybatis 官方参考文档链接： https://mybatis.org/mybatis-3/zh/getting-started.html
+
+* 导入场景（第三方）
+  
+  ```md
+  # 开源项目
+  https://github.com/mybatis/spring-boot-starter/tree/mybatis-spring-boot-2.2.2
+  ```
+  
+  ```xml
+  <!--        引入 Mybatis 场景-->
+          <dependency>
+              <groupId>org.mybatis.spring.boot</groupId>
+              <artifactId>mybatis-spring-boot-starter</artifactId>
+          </dependency>
+  ```
+  
+  ```md
+  # Mybatis 场景里面映入了 SQL 场景，所以不用引入 
+  # spring-boot-starter-data-jdbc
+  ```
+
+* 快速使用：
+  
+  * 导入场景
+  
+  * 编写 Mapper 接口，并且要加上注解 @Mapper （<u>**每一个都加**</u>）
+    
+    * 也可使用包扫描方式，在主程序（启动）上加注解 <u>**@MapperScan("存Mapper的包名")**</u>
+  
+  * 编写对应 Mapper 接口的 sql 映射文件，<u>**sql.xml 中的 id 对应 Mapper 的方法名**</u>
+  
+  * 在配置文件（.yml）中配置 Mapper 配置文件（<u>**sql 映射文件**</u>）的位置
+  
+  * 在配置文件（.yml）中配置 Mybatis 全局配置文件位置（建议<u>**不要再创建配置文件**</u>，直接在 <u>**mybatis.configuration**</u> 中对相关项进行配置即可）
+  
+  ```yml
+  # 配置mybatis规则
+  mybatis:
+  #  config-location: classpath:mybatis/mybatis-config.xml
+    mapper-locations: classpath:mybatis/mapper/*.xml
+    configuration:
+      map-underscore-to-camel-case: true 
+  
+   可以不写全局；配置文件，所有全局配置文件的配置都放在configuration配置项中即可
+  ```
+
+* 相关注解的使用
+  
+  * 对于复杂的 sql ，可以使用编写相关的 sql 映射文件
+  
+  * 对于简单的 sql，可以不用编写 sql 映射文件，直接使用注解，直接在相关接口中的方法上加上 @Select("sql 语句") 等注解即可
+
+#### 3.1.3 MyBatisPlus 整合
+
+* MyBatisPlus 官方参考文档链接： https://baomidou.com/
+
+* 场景导入
+  
+  ```xml
+  <dependency>
+      <groupId>com.baomidou</groupId>
+      <artifactId>mybatis-plus-boot-starter-test</artifactId>
+      <version>3.5.2</version>
+  </dependency>
+  ```
+  
+  ```md
+  # MybatisPlus 引入了 SQL 场景，同时也引入了 Mybatis 场景
+  # 和 Mybatis 与 Spring 整合的场景，因此不用引入
+  # spring-boot-starter-data-jdbc 和 mybatis-spring-boot-starter
+  ```
+
+* 相关注解：
+  
+  * pojo 上标 @TableName("表名") ------> 类与对应表进行映射
+    
+    * <u>**默认情况**</u>下，不使用该注解，类名（驼峰式）与表名相同
+  
+  * 表中<u>**不存在的字段**</u>，在 pojo 中相应的属性上标注解 @TableField(exist = false)，进行查询时候回自动忽略相应字段
+
+* 优点：
+  
+  * 对于 Mapper 接口，可以<u>**直接继承 BaseMapper**</u>， 具备了<u>**基本的 CRUD**</u> 功能
+  
+  * <u>**mapper-locations 自动配置好的**</u>，有默认值：classpath\*:/mapper/\*\*/\*.xml（任意包的类路径下的所有mapper文件夹下任意路径下的所有xml都是sql映射文件）， <u>**建议以后sql映射文件，放在 mapper下**</u>
+  
+  * 对于 service 接口继承 IService< pojo中的类 > 就拥有了基本的功能，对应的 service 实现类需要继承 ServiceImpl<对应Mapper接口, pojo中的类> 从避免需要实现 service 接口中的众多方法，这样就可以直接调用来使用即可（比如：里面含有分页方法，page() ）
+  
+  ```java
+  // 举例
+  @Service
+  public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements UserService {
+  
+  }
+  
+  public interface UserService extends IService<User> {
+  
+  }
+  ```
+
+### 3.2 NoSQL
+
+#### 3.2.1 Redis
+
+* 官方中文参考文档： http://redis.cn/documentation.html
+
+* 导入对应场景
+  
+  ```xml
+  <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-data-redis</artifactId>
+  </dependency>
+  ```
+
+* 配置相关配置项
+  
+  ```yaml
+  spring:
+    redis:
+        host: #  主机地址
+        port:  # 段口
+        password:  # 密码
+        # 默认是 Lettuce，导入 jedis 就可以进行修改了
+        # 从而使用对应的模板来对 redis 操作
+        client-type: 
+        # 如果使用的是 jedis 就加下面的配置   
+        jedis:
+          pool:
+            max-active: 10 
+  ```
+
+* <u>**面试题（Filter 与 Interceptor 区别）：**</u>
+
+![](C:\Users\DELL\AppData\Roaming\marktext\images\2022-08-24-17-07-55-image.png)
