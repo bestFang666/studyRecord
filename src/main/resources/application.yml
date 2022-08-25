@@ -5,3 +5,11 @@ spring:
     username: root
     password: 123456789
     driver-class-name: com.mysql.cj.jdbc.Driver
+mybatis-plus:
+
+  configuration:
+    # 表中字段与对象属性进行映射
+    # eg. a_b(表) ------> aB(对象)
+    map-underscore-to-camel-case: true
+    # 打印 SQL 语句
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
