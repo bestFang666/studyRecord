@@ -1109,6 +1109,8 @@ spring:
     mapper-locations: classpath:mybatis/mapper/*.xml
     configuration:
       map-underscore-to-camel-case: true 
+      # 打印 SQL 语句
+      log-impl: org.apache.ibatis.logging.stdout.StdOutImpl 
   
    可以不写全局；配置文件，所有全局配置文件的配置都放在configuration配置项中即可
   ```
@@ -1144,6 +1146,7 @@ spring:
   * pojo 上标 @TableName("表名") ------> 类与对应表进行映射
     
     * <u>**默认情况**</u>下，不使用该注解，类名（驼峰式）与表名相同
+    * 数据库表中字段对应 pojo 中对象，eg. <u>**user_name ------> userName**</u>
   
   * 表中<u>**不存在的字段**</u>，在 pojo 中相应的属性上标注解 @TableField(exist = false)，进行查询时候回自动忽略相应字段
 
