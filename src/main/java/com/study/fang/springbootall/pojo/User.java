@@ -1,5 +1,6 @@
 package com.study.fang.springbootall.pojo;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
@@ -11,6 +12,7 @@ import lombok.Data;
 @Data
 @TableName("user")
 public class User {
+    @TableField(exist = true)
     private Long id;
     private String name;
     private Integer age;
