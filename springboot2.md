@@ -813,7 +813,7 @@ spring:
   
   6. 当前端请求的 Content-Type 是 Json 时，可以用 @RequestBody 这个注解来解决； @RequestParam 用来处理 Content-Type: 为 application/x-www-form-urlencoded 编码的内容，提交方式 GET、POST。
 
-### 2.3 视图接信息与模板引擎
+### 2.3 视图解析与模板引擎
 
 * SpringBoot 不支持 JSP
 
@@ -1152,7 +1152,7 @@ spring:
 
 * 优点：
   
-  * 对于 Mapper 接口，可以<u>**直接继承 BaseMapper**</u>， 具备了<u>**基本的 CRUD**</u> 功能
+  * 对于 Mapper 接口，可以<u>**直接继承 BaseMapper**</u>， 从而具备<u>**基本的 CRUD**</u> 功能
   
   * <u>**mapper-locations 自动配置好的**</u>，有默认值：classpath\*:/mapper/\*\*/\*.xml（任意包的类路径下的所有mapper文件夹下任意路径下的所有xml都是sql映射文件）， <u>**建议以后sql映射文件，放在 mapper下**</u>
   
@@ -1202,6 +1202,6 @@ spring:
             max-active: 10 
   ```
 
-* <u>**面试题（Filter 与 Interceptor 区别）：**</u>
+* <u>**面试题（Filter 与 Interceptor 的区别）：**</u>
 
 ![](C:\Users\DELL\AppData\Roaming\marktext\images\2022-08-24-17-07-55-image.png)
